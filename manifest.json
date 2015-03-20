@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+
+  "name": "Trello Time",
+  "description": "Adds time tracking features to Trello",
+  "version": "1.0",
+
+  "content_scripts": [
+    { "matches": ["https://trello.com/b/*/*", "https://trello.com/c/*/*"]
+    , "js": ["dist/trello-time.js"]
+    }
+  ]
+}
