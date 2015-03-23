@@ -1,0 +1,51 @@
+//////////////////
+// Timer Button //
+//////////////////
+
+.btn-theme( @bg, @color: #fff ){
+  background: @bg;
+  border-color: @bg @bg darken( @bg, 10% );
+  color: @color;
+
+  > .icon-clock {
+    color: #fff
+  }
+};
+
+@active-color: #d85f92;
+
+.button-link {
+  &.active {
+    .btn-theme( @active-color );
+  }
+
+  &.active:hover {
+    .btn-theme( lighten( @active-color, 5% ) );
+  }
+
+  .btn-text {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 0;
+    opacity: 0;
+
+    transition: opacity 0.2s linear;
+  }
+
+  .btn-text-start {
+    opacity: 0.5;;
+  }
+
+  &.active {
+    .btn-text-start {
+      opacity: 0;
+    }
+
+    .btn-text-stop {
+      opacity: 0.5;
+    }
+  }
+}
