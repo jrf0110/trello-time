@@ -11,8 +11,17 @@ module.exports = stampit()
   , hasStarted:     false
   })
   .enclose( function(){
+    if ( this.currStartDate ){
+      this.currStartDate = new Date( this.currStartDate );
+
+      if ( this.hasStarted ){
+        this.captureElapsed();
+      }
+    }
+
     // Initialized with hasStarted, need to actually start
     if ( this.hasStarted ){
+      this.hasStarted = false;
       this.start();
     }
   })
@@ -56,13 +65,25 @@ module.exports = stampit()
       return this.hasStarted;
     }
 
+  , duration: function(){
+      return moment.duration( this.elapsed, 'milliseconds' );
+    }
+
   , toString: function(){
-      var duration = moment.duration( this.elapsed, 'milliseconds' );
+      var duration = this.duration();
 
       return [
         utils.pad( duration.hours(), 2, '0' )
       , utils.pad( duration.minutes(), 2, '0' )
       , utils.pad( duration.seconds(), 2, '0' )
       ].join(':');
+    }
+
+  , toJSON: function(){
+      return {
+        elapsed:        this.elapsed
+      , currStartDate:  this.currStartDate
+      , hasStarted:     this.hasStarted
+      };
     }
   });

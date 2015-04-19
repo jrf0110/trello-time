@@ -12,8 +12,14 @@ var models = {
 };
 
 var views = {
-  timerButton:  require('./views/timer-button')
-, style:        require('./views/style')
+  timerButton:      require('./views/timer-button')
+, editTimerButton:  require('./views/edit-timer-button')
+, summaryButton:    require('./views/summary-button')
+, style:            require('./views/style')
+, card:             require('./views/card')
+, cardWindow:       require('./views/card-window')
+, cardsCsv:         require('./views/cards-csv')
+, cardsConsole:     require('./views/cards-console')
 };
 
 var state = window.state = Object.create({
@@ -33,22 +39,29 @@ var state = window.state = Object.create({
     return this;
   }
 
-, timers: {}
+, timers: services.timers.get() || {}
+
+, save: function(){
+    services.timers.save( this.timers );
+  }
 });
 
 if ( state.activeCard.isOpen ){
-  console.log(utils.parseUrl().cardId);
   state.activeCard.id = utils.parseUrl().cardId;
 }
 
-bus.on('card:open', function( id ){
-  console.log('card:open', id);
-
+bus.on('timer:save', function( id, elapsed ){
   var timer = state.timers[ id ] = state.timers[ id ] || models.timers();
-  var $el = views.timerButton( id, timer );
+  timer.elapsed = elapsed;
+  timer.emit('tick');
+  state.save();
+});
+
+bus.on('card:open', function( id ){
+  var timer = state.timers[ id ] = state.timers[ id ] || models.timers();
 
   $(function(){
-    $('.window .other-actions > .u-clearfix').prepend( $el );
+    views.cardWindow( $('.window'), id, timer );
   });
 });
 
@@ -57,9 +70,32 @@ bus.on('card:close', function( id, card ){
 });
 
 bus.on('timer:toggle', function( id ){
-  console.log('timer:toggle', id);
   var timer = state.timers[ id ];
   timer.toggle();
+  views.card.fromId( id ).toggleTimer( timer.isTicking() );
+  state.save();
+});
+
+bus.on('request-summary', function(){
+  var timers = services.timers.get();
+
+  var idList = Object.keys( timers )
+    .filter( function( id ){
+       return $( '[href*="{id}"].list-card-title'.replace( '{id}', id ) ).length;
+    });
+
+  utils.async.map(
+    idList
+  , services.trello.card.bind( services.trello )
+  , function( error, cards ){
+      cards.forEach( function( card, i ){
+        card.timer = timers[ idList[ i ] ];
+      });
+
+      views.cardsConsole( cards );
+      window.location = 'data:text/csv;charset=utf-8,' + encodeURIComponent( views.cardsCsv( cards ) );
+    }
+  );  
 });
 
 if ( state.activeCard.isOpen ){
@@ -71,6 +107,8 @@ $(function(){
 
   var $body = $(document.body);
   var $cardWindow = $('.window');
+
+  $('.nav-list').prepend( views.summaryButton() );
 
   var onMutations = function( mutations ){
     mutations = mutations.filter( function( mutation ){

@@ -23,13 +23,11 @@ module.exports = function( id, timer ){
 
   $el.click( function( e ){
     e.preventDefault();
-    console.log('click');
     $el.toggle();
   });
 
   $el.toggle = function(){
     $el.toggleClass('active');
-    console.log('emitting', id);
     bus.emit( 'timer:toggle', id );
   };
 

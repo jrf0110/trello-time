@@ -1,4 +1,5 @@
 var _       = require('lodash');
+var timers  = require('../models/timer');
 var config  = require('../config');
 
 var create = function( options ){
@@ -9,20 +10,26 @@ var create = function( options ){
   return Object.create({
     options: options
 
-  , get: function( id ){
+  , key: 'trello_time_timers'
+
+  , get: function(){
       var result;
 
       try {
-        result = JSON.parse( localStorage.getItem( id ) );
+        result = JSON.parse( localStorage.getItem( this.key ) ) || {};
       } catch( e ){
         result = {};
       }
 
+      Object.keys( result ).forEach( function( key ){
+        result[ key ] = timers( result[ key ] );
+      });
+
       return result;
     }
 
-  , set: function( data ){
-      localStorage.setItem( data.id, JSON.stringify( data ) );
+  , save: function( data ){
+      localStorage.setItem( this.key, JSON.stringify( data ) );
     }
   });
 };

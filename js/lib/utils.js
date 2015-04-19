@@ -1,3 +1,8 @@
+require('lodash').extend( module.exports, require('lodash') );
+
+module.exports.async = require('async');
+module.exports.datetime = require('moment');
+
 module.exports.parseUrl = function(){
   var pathname = window.location.pathname;
   var parts = pathname.split('/');
