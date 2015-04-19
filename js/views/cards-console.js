@@ -11,5 +11,5 @@ module.exports = function( cards ){
   }, 0 );
 
   console.log('');
-  console.log( 'total', models.timers({ elapsed: total }).toString() );
+  console.log( 'total', require('../models/timer')({ elapsed: total }).toString() );
 };

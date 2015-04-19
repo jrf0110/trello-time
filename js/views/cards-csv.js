@@ -6,7 +6,7 @@ module.exports = function( cards ){
       })
       .concat({
         name:   'Total'
-      , timer:  models.timers({
+      , timer:  require('../models/timer')({
                   elapsed:  cards.reduce( function( total, card ){
                               return total + card.timer.elapsed;
                             }, 0 )
